@@ -1,30 +1,38 @@
-name: Autograding Tests
-'on':
-- push
-- repository_dispatch
-permissions:
-  checks: write
-  actions: read
-  contents: read
+name: Autograding for Alumni
+
+on:
+  push:
+    branches:
+      - main
+
 jobs:
-  run-autograding-tests:
+  autograde:
     runs-on: ubuntu-latest
-    if: github.actor != 'github-classroom[bot]'
+
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-    - name: Hello world test
-      id: hello-world-test
-      uses: classroom-resources/autograding-command-grader@v1
-      with:
-        test-name: Hello world test
-        setup-command: npm install
-        command: npm test
-        timeout: 1
-        max-score: 2
-    - name: Autograding Reporter
-      uses: classroom-resources/autograding-grading-reporter@v1
-      env:
-        HELLO-WORLD-TEST_RESULTS: "${{steps.hello-world-test.outputs.result}}"
-      with:
-        runners: hello-world-test
+      # Check out the repository
+      - uses: actions/checkout@v3
+
+      # Set up Node.js
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20'
+
+      # Install dependencies
+      - name: Install dependencies
+        run: npm install
+        
+      # Install dependencies
+      - name: Install dependencies
+        run: |
+          npm install -g markdownlint-cli
+          npm install -g cspell
+          
+      # Run Markdown linting
+      - name: Run Markdownlint
+        run: markdownlint "./homework/*.md"
+
+      # Run spellchecking
+      - name: Run Spellchecking
+        run: cspell "./homework/*.md"
